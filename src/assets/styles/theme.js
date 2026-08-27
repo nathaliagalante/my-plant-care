@@ -1,0 +1,17 @@
+export const COLOR = {
+  bg:         "#eceae0",
+  surface:    "#ffffff",
+  surfaceAlt: "#f7f5ef",
+  border:     "#d6d2c4",
+  borderLight:"#ece9e0",
+  green1:     "#1e3a0e",
+  green2:     "#2d5016",
+  green3:     "#5a8a3c",
+  green4:     "#a8cc88",
+  green5:     "#d4eac4",
+  terra:      "#c84b1a",
+  terraLight: "#fdf0eb",
+  text1:      "#1a1a14",
+  text2:      "#5a5a50",
+  text3:      "#9a9a8e",
+}
