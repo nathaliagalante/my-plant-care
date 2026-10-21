@@ -1,26 +1,31 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef } from "react"
 import { Search, X } from "lucide-react"
 import { COLOR } from "../../assets/styles/theme"
-import { searchPlants } from "../../api/plantApi"
 import { PLANT_ICONS } from "../../data/mockData"
 
+import PlantsService from "../../services/PlantsService"
+
 export default function Modal({ existingNames, onAdd, onClose }) {
-  const [query,    setQuery]    = useState("")
-  const [results,  setResults]  = useState([])
+  const [searchTerm, setSearchTerm]    = useState("")
+  const [plants,  setPlants]  = useState([])
   const [loading,  setLoading]  = useState(false)
   const [apiError, setApiError] = useState(false)
   const debounceRef = useRef(null)
 
-  const handleSearch = useCallback((val) => {
-    setQuery(val)
+  async function handleSearch(term) {
+    setSearchTerm(term)
     setApiError(false)
     clearTimeout(debounceRef.current)
-    if (val.trim().length < 2) { setResults([]); return }
+
+    if (term.trim().length < 2) { setPlants([]); return }
+    
     debounceRef.current = setTimeout(async () => {
-      setLoading(true)
       try {
-        const res = await searchPlants(val)
-        setResults(res.map((p, i) => ({
+        setLoading(true)
+
+        const results = await PlantsService.searchPlants(term)
+
+        setPlants(results.map((p, i) => ({
           ...p,
           icon:         PLANT_ICONS[(i + 3) % PLANT_ICONS.length],
           isUrgent:     false,
@@ -29,11 +34,12 @@ export default function Modal({ existingNames, onAdd, onClose }) {
         })))
       } catch {
         setApiError(true)
-        setResults([])
+        setPlants([])
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }, 600)
-  }, [])
+  }
 
   return (
     <div
@@ -90,7 +96,7 @@ export default function Modal({ existingNames, onAdd, onClose }) {
             <Search size={16} color={COLOR.text3} style={{ flexShrink: 0 }} />
             <input
               autoFocus
-              value={query}
+              value={searchTerm}
               onChange={e => handleSearch(e.target.value)}
               placeholder="Ex: monstera, jiboia, suculenta..."
               style={{
@@ -103,7 +109,7 @@ export default function Modal({ existingNames, onAdd, onClose }) {
         </div>
 
         <div style={{ padding: "0 24px 20px", maxHeight: 360, overflowY: "auto" }}>
-          {!query && (
+          {!searchTerm && (
             <div style={{
               background: COLOR.green5, borderRadius: 12,
               padding: "14px 16px", fontSize: 13, color: COLOR.green2, lineHeight: 1.6,
@@ -127,9 +133,9 @@ export default function Modal({ existingNames, onAdd, onClose }) {
             </div>
           )}
 
-          {!loading && results.length > 0 && (
+          {!loading && plants.length > 0 && (
             <div className="anim-slideDown" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {results.map((plant, i) => {
+              {plants.map((plant, i) => {
                 const already = existingNames.includes(plant.name?.toLowerCase())
                 return (
                   <button
@@ -178,7 +184,7 @@ export default function Modal({ existingNames, onAdd, onClose }) {
             </div>
           )}
 
-          {!loading && !apiError && query.length >= 2 && results.length === 0 && (
+          {!loading && !apiError && searchTerm.length >= 2 && plants.length === 0 && (
             <div style={{ textAlign: "center", padding: "2rem", color: COLOR.text3 }}>
               <p style={{ fontSize: 28, marginBottom: 8 }}>🌾</p>
               <p style={{ fontSize: 13 }}>Nenhum resultado. Tente outro nome.</p>
