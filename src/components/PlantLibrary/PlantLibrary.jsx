@@ -9,29 +9,29 @@ export default function PlantLibrary({ plants, onRemove, filter }) {
 
   return (
     <section>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: COLOR.text1, letterSpacing: "-0.02em" }}>
-          A Biblioteca
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: COLOR.text1, letterSpacing: "-0.02em" }}>
+          The Library
           {filter && (
-            <span style={{ fontSize: 14, fontWeight: 400, color: COLOR.text3, marginLeft: 10 }}>
+            <span style={{ fontSize: 15, fontWeight: 400, color: COLOR.text3, marginLeft: 10 }}>
               "{filter}"
             </span>
           )}
         </h2>
 
         <div style={{
-          display: "flex", gap: 4, background: COLOR.surface,
-          border: `1px solid ${COLOR.border}`, borderRadius: 10, padding: 4,
+          display: "flex", gap: 2, background: "#ebe8f0",
+          border: "none", borderRadius: 100, padding: 3,
         }}>
-          {[{ id: "grid", Icon: LayoutGrid, label: "Grade" }, { id: "list", Icon: List, label: "Lista" }].map(({ id, Icon, label }) => (
+          {[{ id: "grid", Icon: LayoutGrid, label: "Grid" }, { id: "list", Icon: List, label: "List" }].map(({ id, Icon, label }) => (
             <button
               key={id}
               onClick={() => setView(id)}
               aria-label={label}
               style={{
-                padding: "6px 8px", borderRadius: 7, border: "none",
-                background: view === id ? COLOR.green2 : "transparent",
-                color:      view === id ? "#fff"   : COLOR.text3,
+                padding: "6px 8px", borderRadius: 100, border: "none",
+                background: view === id ? COLOR.surface : "transparent",
+                color:      view === id ? COLOR.text1   : COLOR.text3,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 transition: "all 0.15s",
               }}
@@ -43,11 +43,7 @@ export default function PlantLibrary({ plants, onRemove, filter }) {
       </div>
 
       {view === "grid" && plants.length > 0 && (
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-          gap: 16,
-        }}>
+        <div className="plant-grid">
           {plants.map((p, i) => (
             <PlantCard key={p.id} plant={p} onRemove={onRemove} delay={i * 50} />
           ))}
@@ -75,10 +71,10 @@ export default function PlantLibrary({ plants, onRemove, filter }) {
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: 22, color: COLOR.text2, marginBottom: 8,
           }}>
-            {filter ? `Nenhum resultado para "${filter}"` : "Seu jardim está vazio"}
+            {filter ? `No results for "${filter}"` : "Your garden is empty"}
           </p>
-          <p style={{ fontSize: 14, color: COLOR.text3 }}>
-            {filter ? "Tente outro filtro." : "Adicione sua primeira planta!"}
+          <p style={{ fontSize: 15, color: COLOR.text3 }}>
+            {filter ? "Try another filter." : "Add your first plant!"}
           </p>
         </div>
       )}

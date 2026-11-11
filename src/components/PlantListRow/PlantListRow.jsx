@@ -28,6 +28,7 @@ export default function PlantListRow({ plant, onRemove, last }) {
 
       <button
         onClick={() => onRemove(plant.id)}
+        aria-label={`Remove ${plant.name}`}
         style={{
           padding: 6, borderRadius: 8, border: "none",
           background: "transparent", color: COLOR.text3,

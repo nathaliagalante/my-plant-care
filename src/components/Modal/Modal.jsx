@@ -30,7 +30,7 @@ export default function Modal({ existingNames, onAdd, onClose }) {
           icon:         PLANT_ICONS[(i + 3) % PLANT_ICONS.length],
           isUrgent:     false,
           status:       "watered",
-          nextWatering: "7 dias",
+          nextWatering: "7 days",
         })))
       } catch {
         setApiError(true)
@@ -69,10 +69,10 @@ export default function Modal({ existingNames, onAdd, onClose }) {
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: 24, fontWeight: 600, color: COLOR.text1,
             }}>
-              Adicionar Planta
+              Add Plant
             </h2>
             <p style={{ fontSize: 12, color: COLOR.text3, marginTop: 2 }}>
-              Busca na base de dados botânica
+              Search the botanical database
             </p>
           </div>
           <button
@@ -98,7 +98,7 @@ export default function Modal({ existingNames, onAdd, onClose }) {
               autoFocus
               value={searchTerm}
               onChange={e => handleSearch(e.target.value)}
-              placeholder="Ex: monstera, jiboia, suculenta..."
+              placeholder="E.g., monstera, pothos, succulent..."
               style={{
                 flex: 1, background: "transparent", border: "none", outline: "none",
                 fontSize: 14, color: COLOR.text1,
@@ -114,13 +114,13 @@ export default function Modal({ existingNames, onAdd, onClose }) {
               background: COLOR.green5, borderRadius: 12,
               padding: "14px 16px", fontSize: 13, color: COLOR.green2, lineHeight: 1.6,
             }}>
-              ✨ Digite ao menos 2 caracteres para buscar plantas reais.
+              ✨ Enter at least 2 characters to search for real plants.
             </div>
           )}
 
           {loading && (
             <div style={{ textAlign: "center", padding: "2rem", color: COLOR.text3, fontSize: 13 }}>
-              Buscando plantas...
+              Searching for plants...
             </div>
           )}
 
@@ -129,7 +129,7 @@ export default function Modal({ existingNames, onAdd, onClose }) {
               background: COLOR.terraLight, borderRadius: 12,
               padding: "14px 16px", fontSize: 13, color: COLOR.terra,
             }}>
-              ⚠ Erro ao buscar. Verifique sua chave de API e conexão.
+              ⚠ Search failed. Check your API key and internet connection.
             </div>
           )}
 
@@ -168,14 +168,14 @@ export default function Modal({ existingNames, onAdd, onClose }) {
                       }}>
                         {plant.name}
                       </p>
-                      <p style={{ fontSize: 12, color: COLOR.text2 }}>{plant.common}</p>
+                      <p style={{ fontSize: 12, color: COLOR.text2 }}>{plant.commonName}</p>
                       <p style={{ fontSize: 11, color: COLOR.text3, marginTop: 2 }}>
                         💧 {plant.water} · ☀️ {plant.light}
                       </p>
                     </div>
 
                     {already
-                      ? <span style={{ fontSize: 11, color: COLOR.text3, flexShrink: 0 }}>Adicionada</span>
+                      ? <span style={{ fontSize: 11, color: COLOR.text3, flexShrink: 0 }}>Added</span>
                       : <span style={{ fontSize: 18, color: COLOR.green3, flexShrink: 0 }}>+</span>
                     }
                   </button>
@@ -187,7 +187,7 @@ export default function Modal({ existingNames, onAdd, onClose }) {
           {!loading && !apiError && searchTerm.length >= 2 && plants.length === 0 && (
             <div style={{ textAlign: "center", padding: "2rem", color: COLOR.text3 }}>
               <p style={{ fontSize: 28, marginBottom: 8 }}>🌾</p>
-              <p style={{ fontSize: 13 }}>Nenhum resultado. Tente outro nome.</p>
+              <p style={{ fontSize: 13 }}>No results. Try another name.</p>
             </div>
           )}
         </div>

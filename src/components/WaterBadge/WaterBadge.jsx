@@ -1,7 +1,7 @@
 import { Droplets } from "lucide-react"
 import { COLOR } from "../../assets/styles/theme"
 
-export default function WaterBadge({ value, isUrgent }) {
+export default function WaterBadge({ wateringDays,  wateringUnit, isUrgent }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 5,
@@ -10,7 +10,7 @@ export default function WaterBadge({ value, isUrgent }) {
       color:      isUrgent ? "#fff"   : COLOR.green2,
     }}>
       <Droplets size={10} fill="currentColor" />
-      {value}
+      {wateringDays} {wateringUnit}
     </span>
   )
 }

@@ -1,105 +1,99 @@
-import { useState, useRef } from "react"
-import { Plus } from "lucide-react"
+import { useState, useEffect } from "react"
 import { COLOR } from "./assets/styles/theme"
-import { SEED_PLANTS } from "./data/mockData"
 
 import Header from './components/Header/Header'
 import Hero from './components/Hero/Hero'
 import CareSchedule from "./components/CareSchedule/CareSchedule"
 import PlantLibrary from "./components/PlantLibrary/PlantLibrary"
 import Modal from "./components/Modal/Modal"
-import Login from "./components/pages/Login/Login"
 
 import "./assets/styles/global.css"
 
+import PlantsService from "./services/PlantsService"
+
 export default function App() {
-  const [screen,      setScreen]      = useState("login")
-  const [user,        setUser]        = useState(null)
-  const [plants,      setPlants]      = useState(SEED_PLANTS)
+  const [plants,      setPlants]      = useState([])
   const [filter,      setFilter]      = useState("")
   const [showModal,   setShowModal]   = useState(false)
-  const [loginEmail,  setLoginEmail]  = useState("")
-  const [loginPass,   setLoginPass]   = useState("")
-  const [loginErr,    setLoginErr]    = useState("")
-  const nextId = useRef(200)
+  const [isLoading, setIsLoading] = useState(true)
+  const [theme, setTheme] = useState("light")
 
-  // ── Auth ──
-  const handleLogin = () => {
-    if (!loginEmail || !loginPass) { setLoginErr("Preencha todos os campos."); return }
-    if (!loginEmail.includes("@"))  { setLoginErr("E-mail inválido."); return }
-    const name = loginEmail.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase())
-    setUser({ name, email: loginEmail })
-    setScreen("dashboard")
-    setLoginErr("")
+  async function loadPlants() {
+    try {
+      setIsLoading(true)
+
+      const savedPlants = await PlantsService.listPlants()
+
+      setPlants(savedPlants)
+    } catch(error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleLogout = () => {
-    setUser(null); setScreen("login")
-    setLoginEmail(""); setLoginPass(""); setFilter("")
-    setShowModal(false); setLoginErr("")
+  async function handleAddPlant (plant) {
+    try {
+      const savedPlant = await PlantsService.addPlant(plant)
+
+      setPlants(current => [...current, savedPlant])
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setShowModal(false)
+    }
   }
 
-  // ── Plants CRUD ──
-  const addPlant = (p) => {
-    if (plants.some(pl => pl.name.toLowerCase() === p.name.toLowerCase())) return
-    setPlants(prev => [...prev, {
-      ...p,
-      id:           nextId.current++,
-      added:        new Date().toISOString().slice(0, 10),
-      isUrgent:     false,
-      status:       "watered",
-      nextWatering: "7 dias",
-    }])
-    setShowModal(false)
+  async function handleDeletePlant (id) {
+    try {
+      await PlantsService.deletePlant(id)
+
+      setPlants(currentPlants => currentPlants.filter(plant => plant.id !== id))
+
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  const removePlant = (id) => setPlants(prev => prev.filter(p => p.id !== id))
+  async function handleWaterPlant (id) {
+    try {
+      const updatedPlant = await PlantsService.waterPlant(id)
 
-  const waterPlant  = (id) => setPlants(prev => prev.map(p =>
-    p.id === id ? { ...p, status: "watered", isUrgent: false, nextWatering: "7 dias" } : p
-  ))
+      setPlants(currentPlant => currentPlant.map(plant => plant.id === updatedPlant.id ? {...plant, ...updatedPlant} : plant))
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    loadPlants()
+  }, [])
 
   const filteredPlants = plants.filter(p =>
     p.name.toLowerCase().includes(filter.toLowerCase()) ||
-    p.common.toLowerCase().includes(filter.toLowerCase())
-  )
-
-  if (screen === "login") return (
-    <Login
-      email={loginEmail} setEmail={setLoginEmail}
-      pass={loginPass}   setPass={setLoginPass}
-      err={loginErr}     onLogin={handleLogin}
-    />
+    (p.common || p.commonName || "").toLowerCase().includes(filter.toLowerCase())
   )
 
   return (
-    <div style={{ minHeight: "100vh", background: COLOR.bg }}>
-      <Header user={user} filter={filter} onFilter={setFilter} onLogout={handleLogout} />
+    <div data-theme={theme} style={{ minHeight: "100vh", background: COLOR.bg }}>
+      <Header
+        filter={filter}
+        onFilter={setFilter}
+        theme={theme}
+        onToggleTheme={() => setTheme(current => current === "light" ? "dark" : "light")}
+      />
 
-      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "2rem 1.5rem 5rem" }}>
+      <main className="dashboard-main">
         <Hero plantCount={plants.length} onAdd={() => setShowModal(true)} />
-        <CareSchedule plants={plants} onWater={waterPlant} />
-        <PlantLibrary plants={filteredPlants} onRemove={removePlant} filter={filter} />
+        {isLoading && <span className="anim-spin">🌿</span>}
+        <CareSchedule plants={plants} onWater={handleWaterPlant} />
+        <PlantLibrary plants={filteredPlants} onRemove={handleDeletePlant} filter={filter} />
       </main>
-
-      <button
-        onClick={() => setShowModal(true)}
-        aria-label="Adicionar planta"
-        style={{
-          position: "fixed", bottom: 24, right: 24, zIndex: 40,
-          width: 56, height: 56, borderRadius: "50%",
-          background: COLOR.green2, color: "#fff", border: "none",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 4px 20px rgba(30,58,14,0.35)",
-        }}
-      >
-        <Plus size={24} strokeWidth={2.5} />
-      </button>
 
       {showModal && (
         <Modal
           existingNames={plants.map(p => p.name.toLowerCase())}
-          onAdd={addPlant}
+          onAdd={handleAddPlant}
           onClose={() => setShowModal(false)}
         />
       )}
